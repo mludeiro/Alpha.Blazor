@@ -6,6 +6,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.2" />
+    <PackageReference Include="Ocelot" Version="22.0.1"/>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Alpha.Blazor\Alpha.Blazor.csproj" />
