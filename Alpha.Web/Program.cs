@@ -1,6 +1,3 @@
-using Ocelot.DependencyInjection;
-using Ocelot.Middleware;
-
 namespace Alpha.Web;
 
 internal class Program
@@ -15,8 +12,7 @@ internal class Program
         builder.Services.AddControllersWithViews();
         builder.Services.AddRazorPages();
         builder.Services.AddControllers();
-        builder.Services.AddOcelot();
-        builder.Configuration.AddJsonFile("ocelot.json");
+        builder.Services.AddHttpClient();
 
         var app = builder.Build();
 
@@ -32,7 +28,6 @@ internal class Program
 
         app.MapControllers();
         app.MapFallbackToFile("index.html");
-        app.UseOcelot();
 
         app.Run();
     }
