@@ -23,12 +23,12 @@
                     <div class="card-header">Please Login</div>
                     <div class="card-body">
                         <div class="form-group">
-                            <label class="form-label">Email Address</label>
-                            <InputText @bind-Value="LoginUser.Email" class="form-control"></InputText>
+                            <label class="form-label">User</label>
+                            <InputText @bind-Value="LoginUser.User" class="form-control"></InputText>
                         </div>
                         <div class="form-group mt-3">
                             <label class="form-label">Password</label>
-                            <InputText @bind-Value="LoginUser.Password" class="form-control"></InputText>
+                            <InputText @bind-Value="LoginUser.Password" class="form-control" type="password" ></InputText>
                         </div>
                     </div>
                     <div class="card-footer">
@@ -46,7 +46,7 @@
     private async Task HandleLogin()
     {
         Message = string.Empty;
-        var response = await httpClient.PostAsJsonAsync("api/identity/login", LoginUser);
+        var response = await httpClient.PostAsJsonAsync("api/identity/account/login", LoginUser);
         if (!response.IsSuccessStatusCode)
         {
             Message = "Invalid Credentials";
@@ -54,8 +54,6 @@
         }
         
         var text = await response.Content.ReadAsStringAsync();
-
-        Console.WriteLine(text);
 
         var result = JsonSerializer.Deserialize<LoginResponse>(text);
 
@@ -65,7 +63,7 @@
             return;
         }
 
-        if (string.IsNullOrEmpty(result!.AccessToken))
+        if (string.IsNullOrEmpty(result!.Token))
         {
             Message = "Null token";
             return;
@@ -77,9 +75,8 @@
             return;
         }
 
-        httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer",
-        result.AccessToken);
-        var getUserClaims = await httpClient.GetAsync("api/identity/manage/info");
+        httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", result.Token);
+        var getUserClaims = await httpClient.GetAsync("api/identity/account/info");
         if (!getUserClaims.IsSuccessStatusCode) 
         {
             Message = "Cant get user information";
@@ -89,9 +86,12 @@
         var userDetails = await getUserClaims.Content.ReadFromJsonAsync<UserDetails>();
         var authenticationModel = new AuthenticationModel()
             {
-                Token = result.AccessToken,
+                Token = result.Token,
                 RefreshToken = result.RefreshToken,
-                Username = userDetails!.Email
+                Email = userDetails!.Email,
+                FirstName = userDetails!.FirstName,
+                LastName = userDetails!.LastName,
+                Username = userDetails!.UserName
             };
 
         var customAuthStateProvider = (AlphaAuthenticationStateProvider)authStateProvider;

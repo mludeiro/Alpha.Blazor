@@ -18,7 +18,8 @@ internal class Program
         builder.Services.AddBlazoredLocalStorage();
         builder.Services.AddAuthorizationCore();
         builder.Services.AddScoped<AuthenticationStateProvider, AlphaAuthenticationStateProvider>();
-
+        builder.Services.AddBlazorBootstrap();
+        
         await builder.Build().RunAsync();
     }
 }

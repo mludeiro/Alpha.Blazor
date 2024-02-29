@@ -21,12 +21,24 @@
                     <div class="card-header">Please Register</div>
                     <div class="card-body">
                         <div class="form-group">
+                            <label class="form-label">User Name</label>
+                            <InputText @bind-Value="RegisterUser.User" class="form-control"></InputText>
+                        </div>
+                        <div class="form-group mt-3">
+                            <label class="form-label">First Name</label>
+                            <InputText @bind-Value="RegisterUser.FirstName" class="form-control"></InputText>
+                        </div>
+                        <div class="form-group mt-3">
+                            <label class="form-label">LastName</label>
+                            <InputText @bind-Value="RegisterUser.LastName" class="form-control"></InputText>
+                        </div>
+                        <div class="form-group mt-3">
                             <label class="form-label">Email Address</label>
                             <InputText @bind-Value="RegisterUser.Email" class="form-control"></InputText>
                         </div>
                         <div class="form-group mt-3">
                             <label class="form-label">Password</label>
-                            <InputText @bind-Value="RegisterUser.Password" class="form-control"></InputText>
+                            <InputText @bind-Value="RegisterUser.Password" class="form-control" type="password" ></InputText>
                         </div>
                     </div>
                     <div class="card-footer">
@@ -44,10 +56,11 @@
     private async Task HandleRegister()
     {
         Message = string.Empty;
-        var response = await httpClient.PostAsJsonAsync("api/identity/register", RegisterUser);
+        var response = await httpClient.PostAsJsonAsync("api/identity/account/register", RegisterUser);
         if (!response.IsSuccessStatusCode)
         {
-            Message = "Error occured";
+            var content = await response.Content.ReadAsStringAsync();
+            Message = string.IsNullOrEmpty(content) ? "Error occured" : content;
             return;
         }
         RegisterUser = new();
