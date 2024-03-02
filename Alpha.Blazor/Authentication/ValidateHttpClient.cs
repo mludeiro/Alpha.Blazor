@@ -1,4 +1,5 @@
-﻿using Blazored.LocalStorage;
+﻿using System.Text.Json;
+using Blazored.LocalStorage;
 namespace Alpha.Blazor.Authentication;
 
 public class ValidateHttpClient
@@ -40,13 +41,13 @@ public class ValidateHttpClient
     {
         string? tokenString = await localStorageService.GetItemAsStringAsync("Authentication");
         if (string.IsNullOrEmpty(tokenString)) return null!;
-        return SerializerOrDeserialize.Deserialize(tokenString);
+        return JsonSerializer.Deserialize<AuthenticationModel>(tokenString)!;
     }
 
 
     public async Task<bool> SetTokenToLocalStorage(AuthenticationModel tokenModel)
     {
-        await localStorageService.SetItemAsStringAsync("Authentication", SerializerOrDeserialize.Serialize(tokenModel));
+        await localStorageService.SetItemAsStringAsync("Authentication", JsonSerializer.Serialize(tokenModel));
         AccessToken = string.Empty;
         await GetPrivateHttpClient();
         return true;

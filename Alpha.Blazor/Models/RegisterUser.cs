@@ -5,7 +5,7 @@ namespace Alpha.Blazor.Models;
 public record RegisterUser()
 {
     [DataType(DataType.Text), Required]
-    public string? User { get; set; }
+    public string? Username { get; set; }
 
     [DataType(DataType.Text), Required]
     public string? FirstName { get; set; }
