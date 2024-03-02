@@ -5,18 +5,20 @@ using System.Text.Json;
 
 namespace Alpha.Blazor.Authentication;
 
-public class AlphaAuthenticationStateProvider(ILocalStorageService localStorageService) : AuthenticationStateProvider
+public class AlphaAuthenticationStateProvider(IAuthenticationStoreService storeService) : AuthenticationStateProvider
 {
     private readonly ClaimsPrincipal anonymous = new(new ClaimsIdentity());
-    private readonly ILocalStorageService localStorageService = localStorageService;
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         try
         {
-            var authenticationModel = await localStorageService.GetItemAsStringAsync("Authentication");
-            if (authenticationModel == null) { return await Task.FromResult(new AuthenticationState(anonymous)); }
-            return await Task.FromResult(new AuthenticationState(SetClaims(Deserialize(authenticationModel).Username!)));
+            var authenticationModel = await storeService.GetAuthenticationModel();
+
+            if (authenticationModel == null) 
+                return await Task.FromResult(new AuthenticationState(anonymous));
+
+            return await Task.FromResult(new AuthenticationState(SetClaims(authenticationModel.Username!)));
         }
         catch
         {
@@ -24,19 +26,20 @@ public class AlphaAuthenticationStateProvider(ILocalStorageService localStorageS
         }
     }
 
-    public async Task UpdateAuthenticationState(AuthenticationModel authenticationModel)
+    public async Task UpdateAuthenticationState(AuthenticationModel? authenticationModel)
     {
         try
         {
             ClaimsPrincipal claimsPrincipal = new();
+
             if (authenticationModel is not null)
             {
                 claimsPrincipal = SetClaims(authenticationModel.Username!);
-                await localStorageService.SetItemAsStringAsync("Authentication", Serialize(authenticationModel));
+                await storeService.UpdateAuthenticationState(authenticationModel);
             }
             else
             {
-                await localStorageService.RemoveItemAsync("Authentication");
+                await storeService.RemoveAuthenticationState();
                 claimsPrincipal = anonymous;
             }
             NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(claimsPrincipal)));
@@ -45,12 +48,9 @@ public class AlphaAuthenticationStateProvider(ILocalStorageService localStorageS
         {
             await Task.FromResult(new AuthenticationState(anonymous));
         }
-
-
     }
 
-    private static ClaimsPrincipal SetClaims(string email) => new(new ClaimsIdentity([new Claim(ClaimTypes.Name, email)], "CustomAuth"));
-    private static AuthenticationModel Deserialize(string serializeString) => JsonSerializer.Deserialize<AuthenticationModel>(serializeString)!;
-    private static string Serialize(AuthenticationModel model) => JsonSerializer.Serialize(model);
+    private static ClaimsPrincipal SetClaims(string email) => new(new ClaimsIdentity([new Claim(ClaimTypes.Name, email)], "AlphaAuth"));
+
 }
 

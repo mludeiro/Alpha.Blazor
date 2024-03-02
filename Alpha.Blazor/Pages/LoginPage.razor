@@ -7,7 +7,7 @@
 
 @inject AuthenticationStateProvider authStateProvider
 @inject NavigationManager NavManager
-@inject HttpClient httpClient
+@inject IHttpClientFactory httpClientFactory
 
 <div class="container">
     <div class="row">
@@ -45,6 +45,7 @@
     private string? Message;
     private async Task HandleLogin()
     {
+        var httpClient = httpClientFactory.CreateClient(HttpClientTypes.Gateway);
         Message = string.Empty;
         var response = await httpClient.PostAsJsonAsync("api/identity/account/login", LoginUser);
         if (!response.IsSuccessStatusCode)

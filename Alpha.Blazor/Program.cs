@@ -13,11 +13,18 @@ internal class Program
         builder.RootComponents.Add<App>("#app");
         builder.RootComponents.Add<HeadOutlet>("head::after");
 
-        builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+        builder.Services.AddHttpClient<HttpClient>(HttpClientTypes.Gateway, client =>
+        {
+            client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
+        }).AddHttpMessageHandler<BearerTokenHandler>();
 
+        builder.Services.AddScoped<BearerTokenHandler>();
+        
         builder.Services.AddBlazoredLocalStorage();
         builder.Services.AddAuthorizationCore();
         builder.Services.AddScoped<AuthenticationStateProvider, AlphaAuthenticationStateProvider>();
+        builder.Services.AddScoped<IAuthenticationStoreService, AuthenticationStoreService>();
+        builder.Services.AddScoped<AlphaAuthenticationStateProvider>();
         builder.Services.AddBlazorBootstrap();
         
         await builder.Build().RunAsync();

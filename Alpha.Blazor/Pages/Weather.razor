@@ -1,6 +1,8 @@
 ﻿@page "/weather"
 @using Microsoft.AspNetCore.Components.QuickGrid
-@inject HttpClient Http
+@using Alpha.Blazor.Authentication
+
+@inject IHttpClientFactory httpClientFactory
 
 <PageTitle>Weather</PageTitle>
 
@@ -27,7 +29,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("api/weather/weather");
+        forecasts = await httpClientFactory.CreateClient(HttpClientTypes.Gateway).GetFromJsonAsync<WeatherForecast[]>("api/weather/weather");
     }
 
     public class WeatherForecast

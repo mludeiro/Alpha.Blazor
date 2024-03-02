@@ -36,8 +36,8 @@
 @code {
     private async Task Logout()
     {
-        var customAuthStateProvider = (AlphaAuthenticationStateProvider)authStateProvider;
-        await customAuthStateProvider.UpdateAuthenticationState(null!);
-        NavManager.NavigateTo("/", replace: true);
+        var alphaAuthStateProvider = (AlphaAuthenticationStateProvider)authStateProvider;
+        await alphaAuthStateProvider.UpdateAuthenticationState(null);
+        NavManager.NavigateTo("/login", replace: true);
     }
 }
