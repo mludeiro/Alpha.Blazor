@@ -77,7 +77,7 @@
         }
 
         httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", result.Token);
-        var getUserClaims = await httpClient.GetAsync("api/identity/account/info");
+        var getUserClaims = await httpClient.GetAsync("api/identity/account/me");
         if (!getUserClaims.IsSuccessStatusCode) 
         {
             Message = "Cant get user information";

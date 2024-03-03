@@ -56,7 +56,7 @@
     private async Task HandleRegister()
     {
         Message = string.Empty;
-        var response = await httpClientFactory.CreateClient().PostAsJsonAsync("api/identity/account/register", RegisterUser);
+        var response = await httpClientFactory.CreateClient(Authentication.HttpClientTypes.Gateway).PostAsJsonAsync("api/identity/account/register", RegisterUser);
         if (!response.IsSuccessStatusCode)
         {
             var content = await response.Content.ReadAsStringAsync();
