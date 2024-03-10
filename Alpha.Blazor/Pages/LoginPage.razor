@@ -2,12 +2,12 @@
 
 @using Microsoft.AspNetCore.Components.Authorization
 @using Alpha.Blazor.Authentication
-@using Alpha.Blazor.Models
 @using System.Text.Json;
+@using Alpha.Common.Identity;
 
 @inject AuthenticationStateProvider authStateProvider
 @inject NavigationManager NavManager
-@inject IHttpClientFactory httpClientFactory
+@inject IIdentityService identityService
 
 <div class="container">
     <div class="row">
@@ -24,7 +24,7 @@
                     <div class="card-body">
                         <div class="form-group">
                             <label class="form-label">User</label>
-                            <InputText @bind-Value="LoginUser.User" class="form-control"></InputText>
+                            <InputText @bind-Value="LoginUser.Name" class="form-control"></InputText>
                         </div>
                         <div class="form-group mt-3">
                             <label class="form-label">Password</label>
@@ -41,61 +41,59 @@
 </div>
 
 @code {
-    private LoginUser LoginUser { get; set; } = new();
+    private AccountLogin LoginUser { get; set; } = new();
     private string? Message;
     private async Task HandleLogin()
     {
-        var httpClient = httpClientFactory.CreateClient(HttpClientTypes.Gateway);
         Message = string.Empty;
-        var response = await httpClient.PostAsJsonAsync("api/identity/account/login", LoginUser);
+        var response = await identityService.Login(LoginUser);
         if (!response.IsSuccessStatusCode)
         {
             Message = "Invalid Credentials";
             return;
         }
         
-        var text = await response.Content.ReadAsStringAsync();
-
-        var result = JsonSerializer.Deserialize<LoginResponse>(text);
-
-        if (result is null)
+        if (response.Content is null)
         {
             Message = "Null result";
             return;
         }
 
-        if (string.IsNullOrEmpty(result!.Token))
+        if (string.IsNullOrEmpty(response.Content.Token))
         {
             Message = "Null token";
             return;
         }
 
-        if (string.IsNullOrEmpty(result!.RefreshToken))
+        if (string.IsNullOrEmpty(response.Content.RefreshToken))
         {
             Message = "Null refresh token";
             return;
         }
 
-        httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", result.Token);
-        var getUserClaims = await httpClient.GetAsync("api/identity/account/me");
-        if (!getUserClaims.IsSuccessStatusCode) 
-        {
-            Message = "Cant get user information";
-            return;
-        }
-
-        var userDetails = await getUserClaims.Content.ReadFromJsonAsync<UserDetails>();
         var authenticationModel = new AuthenticationModel()
             {
-                Token = result.Token,
-                RefreshToken = result.RefreshToken,
-                Email = userDetails!.Email,
-                FirstName = userDetails!.FirstName,
-                LastName = userDetails!.LastName,
-                Username = userDetails!.UserName
+                Token = response.Content.Token,
+                RefreshToken = response.Content.RefreshToken,
+                Username = LoginUser.Name
             };
 
         var customAuthStateProvider = (AlphaAuthenticationStateProvider)authStateProvider;
+
+        var userData = await identityService.Me("Bearer "+response.Content.Token);
+        if ( !userData.IsSuccessStatusCode ) 
+        {
+            Message = "Cant get user information";
+            await customAuthStateProvider.UpdateAuthenticationState(null);
+            return;
+        }
+
+        authenticationModel.Email = userData.Content.Email;
+        authenticationModel.FirstName = userData.Content.FirstName;
+        authenticationModel.LastName = userData.Content.LastName;
+        authenticationModel.LastName = userData.Content.LastName;
+        authenticationModel.Username = userData.Content.UserName;
+
         await customAuthStateProvider.UpdateAuthenticationState(authenticationModel);
         NavManager.NavigateTo("/");
     }

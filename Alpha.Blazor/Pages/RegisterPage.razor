@@ -1,11 +1,11 @@
 ﻿@page "/register"
 
 @using Microsoft.AspNetCore.Components.Authorization
-@using Alpha.Blazor.Models
+@using Alpha.Common.Identity
 
 @inject AuthenticationStateProvider authStateProvider
 @inject NavigationManager NavManager
-@inject IHttpClientFactory httpClientFactory
+@inject IIdentityService identityService
 
 <div class="container">
     <div class="row">
@@ -51,16 +51,16 @@
 </div>
 
 @code {
-    private RegisterUser RegisterUser { get; set; } = new();
+    private AccountRegister RegisterUser { get; set; } = new();
     private string? Message;
     private async Task HandleRegister()
     {
         Message = string.Empty;
-        var response = await httpClientFactory.CreateClient(Authentication.HttpClientTypes.Gateway).PostAsJsonAsync("api/identity/account/register", RegisterUser);
+        var response = await identityService.Register(RegisterUser);
         if (!response.IsSuccessStatusCode)
         {
-            var content = await response.Content.ReadAsStringAsync();
-            Message = string.IsNullOrEmpty(content) ? "Error occured" : content;
+            RegisterUser = new();
+            Message = response.Error is null ? "Error occured: " + response.StatusCode : "Error occured: " + response.Error.Message;
             return;
         }
         RegisterUser = new();
