@@ -6,6 +6,13 @@ WORKDIR /frontend
 # We proceed by copying all the contents in
 # the main project folder to root and build it
 COPY . /frontend 
+
+ARG GITHUB_USER
+ENV GITHUB_USER ${GITHUB_USER}
+
+ARG GITHUB_TOKEN
+ENV GITHUB_TOKEN ${GITHUB_TOKEN}
+
 RUN dotnet build /frontend -c Release -o /build
 
 # Once we're done building, we'll publish the project

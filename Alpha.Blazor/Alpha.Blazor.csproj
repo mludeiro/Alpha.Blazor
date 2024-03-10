@@ -12,5 +12,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" Version="8.0.2"/>
     <PackageReference Include="Blazor.Bootstrap" Version="1.11.1"/>
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0"/>
+    <PackageReference Include="Refit.HttpClientFactory" Version="7.0.0"/>
+
+    <PackageReference Include="Alpha.Common" Version="*"/>
   </ItemGroup>
 </Project>

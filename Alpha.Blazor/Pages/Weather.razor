@@ -1,8 +1,10 @@
 ﻿@page "/weather"
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using Alpha.Blazor.Authentication
+@using Alpha.Common.WeatherService
 
 @inject IHttpClientFactory httpClientFactory
+@inject IWeatherService weatherService
 
 <PageTitle>Weather</PageTitle>
 
@@ -19,7 +21,6 @@ else
     <QuickGrid Items="forecasts.AsQueryable()">
         <PropertyColumn Sortable="true" Property="f => f.Date"/>
         <PropertyColumn Property="f => f.TemperatureC"/>
-        <PropertyColumn Property="f => f.TemperatureF"/>
         <PropertyColumn Property="f => f.Summary"/>
     </QuickGrid>
 }
@@ -29,17 +30,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        forecasts = await httpClientFactory.CreateClient(HttpClientTypes.Gateway).GetFromJsonAsync<WeatherForecast[]>("api/weather/weather");
-    }
-
-    public class WeatherForecast
-    {
-        public DateOnly Date { get; set; }
-
-        public int TemperatureC { get; set; }
-
-        public string? Summary { get; set; }
-
-        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+        var methodResponse = await weatherService.Weather();
+        forecasts = methodResponse.ToArray<WeatherForecast>();
     }
 }

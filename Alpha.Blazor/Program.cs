@@ -3,6 +3,10 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using Alpha.Blazor.Authentication;
+using Refit;
+using System.Security.Principal;
+using Alpha.Common.Identity;
+using Alpha.Common.WeatherService;
 namespace Alpha.Blazor;
 
 internal class Program
@@ -18,7 +22,15 @@ internal class Program
             client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
         }).AddHttpMessageHandler<BearerTokenHandler>();
 
-        builder.Services.AddScoped<BearerTokenHandler>();
+        builder.Services.AddRefitClient<IIdentityService>()
+            .ConfigureHttpClient(client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress + "api/identity"))
+            .AddHttpMessageHandler<BearerTokenHandler>();
+
+        builder.Services.AddRefitClient<IWeatherService>()
+            .ConfigureHttpClient(client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress + "api/weather"))
+            .AddHttpMessageHandler<BearerTokenHandler>();
+
+        builder.Services.AddTransient<BearerTokenHandler>();
         
         builder.Services.AddBlazoredLocalStorage();
         builder.Services.AddAuthorizationCore();
