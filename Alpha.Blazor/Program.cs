@@ -23,8 +23,7 @@ internal class Program
         }).AddHttpMessageHandler<BearerTokenHandler>();
 
         builder.Services.AddRefitClient<IIdentityService>()
-            .ConfigureHttpClient(client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress + "identity"))
-            .AddHttpMessageHandler<BearerTokenHandler>();
+            .ConfigureHttpClient(client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress + "identity"));
 
         builder.Services.AddRefitClient<IWeatherService>()
             .ConfigureHttpClient(client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress + "weather"))

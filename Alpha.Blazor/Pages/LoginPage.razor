@@ -80,7 +80,7 @@
 
         var customAuthStateProvider = (AlphaAuthenticationStateProvider)authStateProvider;
 
-        var userData = await identityService.Me("Bearer "+response.Content.Token);
+        var userData = await identityService.Me(response.Content.Token);
         if ( !userData.IsSuccessStatusCode ) 
         {
             Message = "Cant get user information";
