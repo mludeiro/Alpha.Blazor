@@ -7,11 +7,11 @@ WORKDIR /frontend
 # the main project folder to root and build it
 COPY . /frontend 
 
-ARG GITHUB_USER
-ENV GITHUB_USER ${GITHUB_USER}
+ARG NUGET_USER
+ENV NUGET_USER ${NUGET_USER}
 
-ARG GITHUB_TOKEN
-ENV GITHUB_TOKEN ${GITHUB_TOKEN}
+ARG NUGET_TOKEN
+ENV NUGET_TOKEN ${NUGET_TOKEN}
 
 RUN dotnet build /frontend -c Release -o /build
 
@@ -29,4 +29,4 @@ WORKDIR /usr/share/nginx/html
 # folder into nginx/html for nginx to serve. The destination
 # should be the same as what you set in the nginx.conf.
 COPY --from=publish /publish/wwwroot /usr/local/webapp/nginx/html
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY *.conf /etc/nginx/
